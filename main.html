@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aqua</title>
+<link rel="stylesheet" href="main-style.css">
+</head>
+<body>
+
+<div class="scene"
+     id="sky"
+     can-play>
+
+    <canvas id="constellations"></canvas>
+
+    <div can-move class="moon"></div>
+    <div class="water"></div>
+    <div class="star" id="star-0"></div>
+<div class="star" id="star-1"></div>
+<div class="star" id="star-2"></div>
+<div class="star" id="star-3"></div>
+<div class="star" id="star-4"></div>
+<div class="star" id="star-5"></div>
+<div class="star" id="star-6"></div>
+<div class="star" id="star-7"></div>
+<div class="star" id="star-8"></div>
+<div class="star" id="star-9"></div>
+<div class="star" id="star-10"></div>
+<div class="star" id="star-11"></div>
+</div>
+
+<script type="module">
+import { playhtml } from "https://unpkg.com/playhtml@latest";
+
+await playhtml.init({
+  cursors:{
+    enabled:true,
+    room:"page"
+  }
+});
+
+window.playhtml = playhtml;
+
+import("./script.js");
+</script>
+
+<script src="main.js"></script>
+</body>
+</html>
