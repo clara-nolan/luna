@@ -111,18 +111,22 @@ function redrawConnections() {
 }
 
 /***********************
- Duplicate Check
+ Connection Helpers
 ************************/
 
-function hasConnection(a, b) {
+function findConnectionIndex(a, b) {
 
-    return connections.some(([x, y]) =>
+    return connections.findIndex(([x, y]) =>
 
         (x === a && y === b) ||
         (x === b && y === a)
 
     );
 
+}
+
+function hasConnection(a, b) {
+    return findConnectionIndex(a, b) !== -1;
 }
 
 /***********************
@@ -143,6 +147,7 @@ stars.forEach(star => {
 
         }
 
+        // Clicked same star twice means you deselect them
         if (firstStar === id) {
 
             star.classList.remove("selected");
@@ -151,12 +156,21 @@ stars.forEach(star => {
 
         }
 
-        if (!hasConnection(firstStar, id)) {
+        const index = findConnectionIndex(firstStar, id);
 
+        if (index !== -1) {
+
+            // If connection already exists, remove it
+            connections.splice(index, 1);
+
+        } else {
+
+            // Else create conenction
             connections.push([firstStar, id]);
-            redrawConnections();
 
         }
+
+        redrawConnections();
 
         stars[firstStar].classList.remove("selected");
         firstStar = null;
@@ -164,6 +178,27 @@ stars.forEach(star => {
     });
 
 });
+
+/***********************
+ Clear Sky
+************************/
+
+function clearSky() {
+
+    connections.length = 0;
+
+    if (firstStar !== null) {
+        stars[firstStar].classList.remove("selected");
+        firstStar = null;
+    }
+
+    redrawConnections();
+
+}
+
+document
+    .getElementById("clearSky")
+    .addEventListener("click", clearSky);
 
 /***********************
  Init

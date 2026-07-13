@@ -12,7 +12,7 @@
      id="sky"
      can-play>
 
-     <div can-move class="moon"></div>
+     <div can-grow class="moon"></div>
 
     <canvas id="constellations"></canvas>
     
@@ -32,8 +32,12 @@
 
 </div>
 
+<div can-play can-hover id="guestbook"></div>
+
+<button id="clearSky">Clear the Sky</button>
+
 <script type="module">
-import { playhtml } from "https://unpkg.com/playhtml@latest";
+import { html, playhtml, repeat} from "https://unpkg.com/playhtml@latest";
 
 await playhtml.init({
   cursors:{
@@ -41,6 +45,67 @@ await playhtml.init({
     room:"page"
   }
 });
+  playhtml.register("guestbook", {
+  defaultData: { entries: [] },
+
+  view: ({ data, setData }) => {
+    const sign = (event) => {
+      event.preventDefault();
+
+      const form = event.target;
+      const input = form.querySelector("input");
+      const message = input.value.trim();
+
+      if (!message) return;
+
+      setData((draft) => {
+        draft.entries.push({
+          name: window.cursors?.name ?? "someone",
+          message,
+          at: Date.now(),
+        });
+      });
+
+      input.value = "";
+    };
+
+    const clearWishes = () => {
+      setData((draft) => {
+        draft.entries = [];
+      });
+    };
+
+    return html`
+      <p>${data.entries.length} wishes in the sky ✨</p>
+
+      <form @submit=${sign}>
+        <input placeholder="it's written in the stars..." />
+        <button type="submit">Make a Wish</button>
+      </form>
+
+      <button
+        type="button"
+        @click=${clearWishes}
+        ?disabled=${data.entries.length === 0}
+      >
+        Clear Wishes
+      </button>
+
+      <ul>
+        ${repeat(
+          [...data.entries].reverse(),
+          (entry) => html`
+            <li>
+              <b>${entry.name}</b>: ${entry.message}
+              <small>${new Date(entry.at).toLocaleTimeString()}</small>
+            </li>
+          `
+        )}
+      </ul>
+    `;
+  },
+});
+</script>
 
 window.playhtml = playhtml;
 
