@@ -3,115 +3,223 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Aqua</title>
+
 <link rel="stylesheet" href="main-style.css">
 </head>
+
 <body>
 
-<div class="scene"
-     id="sky"
-     can-play>
+<!-- SKY -->
 
-     <div can-grow class="moon"></div>
-
-    <canvas id="constellations"></canvas>
-    
-    <div class="water"></div>
-<div class="star" id="star-0"></div>
-<div class="star" id="star-1"></div>
-<div class="star" id="star-2"></div>
-<div class="star" id="star-3"></div>
-<div class="star" id="star-4"></div>
-<div class="star" id="star-5"></div>
-<div class="star" id="star-6"></div>
-<div class="star" id="star-7"></div>
-<div class="star" id="star-8"></div>
-<div class="star" id="star-9"></div>
-<div class="star" id="star-10"></div>
-<div class="star" id="star-11"></div>
+<div
+    id="sky"
+    class="scene"
+    can-play>
 
 </div>
 
-<div can-play can-hover id="guestbook"></div>
 
-<button id="clearSky">Clear the Sky</button>
+<!-- COLOR PICKER -->
+
+<div id="color-picker" can-play>
+
+    <label>
+
+        ✨ My Star Color
+
+        <input
+            type="color"
+            value="#7dd3fc">
+
+    </label>
+
+</div>
+
+
+<!-- GUESTBOOK -->
+
+<div
+    id="guestbook"
+    can-play
+    can-hover>
+</div>
+
+
+<!-- CLEAR BUTTON -->
+
+<button id="clearSky">
+
+    Clear the Sky
+
+</button>
+
 
 <script type="module">
-import { html, playhtml, repeat} from "https://unpkg.com/playhtml@latest";
+
+import {
+
+    html,
+    repeat,
+    playhtml
+
+} from "https://unpkg.com/playhtml@latest";
 
 await playhtml.init({
-  cursors:{
-    enabled:true,
-    room:"page"
-  }
+
+    cursors: {
+
+        enabled: true,
+        room: "page"
+
+    }
+
 });
-  playhtml.register("guestbook", {
-  defaultData: { entries: [] },
 
-  view: ({ data, setData }) => {
-    const sign = (event) => {
-      event.preventDefault();
 
-      const form = event.target;
-      const input = form.querySelector("input");
-      const message = input.value.trim();
+/*************************************************
+ COLOR PICKER
+**************************************************/
 
-      if (!message) return;
+const picker = document.getElementById("color-picker");
 
-      setData((draft) => {
-        draft.entries.push({
-          name: window.cursors?.name ?? "someone",
-          message,
-          at: Date.now(),
-        });
-      });
+picker.myDefaultAwareness = "#7dd3fc";
 
-      input.value = "";
-    };
+picker.querySelector("input")
+.addEventListener("input", e => {
 
-    const clearWishes = () => {
-      setData((draft) => {
-        draft.entries = [];
-      });
-    };
+    picker.myAwareness = e.target.value;
 
-    return html`
-      <p>${data.entries.length} wishes in the sky ✨</p>
-
-      <form @submit=${sign}>
-        <input placeholder="it's written in the stars..." />
-        <button type="submit">Make a Wish</button>
-      </form>
-
-      <button
-        type="button"
-        @click=${clearWishes}
-        ?disabled=${data.entries.length === 0}
-      >
-        Clear Wishes
-      </button>
-
-      <ul>
-        ${repeat(
-          [...data.entries].reverse(),
-          (entry) => html`
-            <li>
-              <b>${entry.name}</b>: ${entry.message}
-              <small>${new Date(entry.at).toLocaleTimeString()}</small>
-            </li>
-          `
-        )}
-      </ul>
-    `;
-  },
 });
-</script>
+
+
+/*************************************************
+ GUESTBOOK
+**************************************************/
+
+playhtml.register("guestbook", {
+
+    defaultData: {
+
+        entries: []
+
+    },
+
+    view: ({ data, setData }) => {
+
+        function sign(event) {
+
+            event.preventDefault();
+
+            const input =
+                event.target.querySelector("input");
+
+            const message =
+                input.value.trim();
+
+            if (!message) return;
+
+            setData(draft => {
+
+                draft.entries.push({
+
+                    name:
+                        window.cursors?.name ??
+                        "someone",
+
+                    message,
+
+                    at: Date.now()
+
+                });
+
+            });
+
+            input.value = "";
+
+        }
+
+        function clear() {
+
+            setData(draft => {
+
+                draft.entries = [];
+
+            });
+
+        }
+
+        return html`
+
+            <p>
+
+                ${data.entries.length}
+                wishes in the sky ✨
+
+            </p>
+
+            <form @submit=${sign}>
+
+                <input
+                    placeholder="it's written in the stars..."
+                >
+
+                <button>
+
+                    Make a Wish
+
+                </button>
+
+            </form>
+
+            <button
+                @click=${clear}
+                ?disabled=${!data.entries.length}
+            >
+
+                Clear Wishes
+
+            </button>
+
+            <ul>
+
+                ${repeat(
+
+                    [...data.entries].reverse(),
+
+                    wish => html`
+
+                        <li>
+
+                            <b>
+
+                                ${wish.name}
+
+                            </b>
+
+                            ${wish.message}
+
+                        </li>
+
+                    `
+
+                )}
+
+            </ul>
+
+        `;
+
+    }
+
+});
+
 
 window.playhtml = playhtml;
 
-import("./script.js");
+import("./main.js");
+
 </script>
 
-<script src="main.js"></script>
 </body>
 </html>

@@ -121,3 +121,7 @@ body, html {
 #guestbook[data-playhtml-hover] li {
   transform: translateX(4px);
 }
+
+#color-picker{
+  color: white;
+}
