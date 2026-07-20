@@ -27,7 +27,7 @@
 
     <label>
 
-        ✨ My Star Color
+        ✨ my star color
 
         <input
             type="color"
@@ -49,11 +49,11 @@
 
 <!-- CLEAR BUTTON -->
 
-<button id="clearSky">
+<!-- <button id="clearSky">
 
-    Clear the Sky
+    clear the sky -->
 
-</button>
+<!-- </button> -->
 
 
 <script type="module">
@@ -145,13 +145,28 @@ picker.querySelector("input")
           if (i >= 0) draft.entries.splice(i, 1);
         });
       };
+
+      
        function clear() {
 
-            setData(draft => {
+        if (!admin) return;
+        document
+        .getElementById("clearSky")
+        .addEventListener(
+            "click",
+            () => {
 
-                draft.entries = [];
+                setData(draft => {
 
-            });
+                    draft.connections.splice(
+                        0,
+                        draft.connections.length
+                    );
+
+                });
+
+            }
+        );
 
         }
 
