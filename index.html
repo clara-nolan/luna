@@ -97,50 +97,55 @@ picker.querySelector("input")
 /*************************************************
  GUESTBOOK
 **************************************************/
+ const isAdmin = () =>
+    new URLSearchParams(location.search).has('admin') ||
+    sessionStorage.getItem('admin') === '1';
 
-playhtml.register("guestbook", {
+  const unlock = () => sessionStorage.setItem('admin', '1');
 
-    defaultData: {
+  // Simpler than Konami: Cmd/Ctrl + Shift + A
+  window.addEventListener('keydown', (event) => {
+    if (
+      (event.metaKey || event.ctrlKey) &&
+      event.shiftKey &&
+      event.key === 'a'
+    ) {
+      event.preventDefault();
+      unlock();
+      playhtml.getHandle('guestbook').requestUpdate();
+    }
+  });
 
-        entries: []
-
-    },
-
+  playhtml.register('guestbook', {
+    defaultData: { entries: [], frozen: false },
     view: ({ data, setData }) => {
+      const admin = isAdmin();
+      const frozen = Boolean(data.frozen);
 
-        function sign(event) {
+      const wish = (event) => {
+        event.preventDefault();
+        if (frozen) return;
+        const input = event.target.querySelector('input');
+        const message = input.value.trim();
+        if (!message) return;
+        setData((draft) => {
+          draft.entries.push({
+            name: window.cursors?.name || 'someone',
+            message,
+            at: Date.now(),
+          });
+        });
+        input.value = '';
+      };
 
-            event.preventDefault();
-
-            const input =
-                event.target.querySelector("input");
-
-            const message =
-                input.value.trim();
-
-            if (!message) return;
-
-            setData(draft => {
-
-                draft.entries.push({
-
-                    name:
-                        window.cursors?.name ??
-                        "someone",
-
-                    message,
-
-                    at: Date.now()
-
-                });
-
-            });
-
-            input.value = "";
-
-        }
-
-        function clear() {
+      const remove = (at) => {
+        if (!admin) return;
+        setData((draft) => {
+          const i = draft.entries.findIndex((e) => e.at === at);
+          if (i >= 0) draft.entries.splice(i, 1);
+        });
+      };
+       function clear() {
 
             setData(draft => {
 
@@ -150,69 +155,150 @@ playhtml.register("guestbook", {
 
         }
 
-        return html`
+      return html`
+        ${admin ? html`<div class="admin-bar">admin unlocked</div>` : null}
+        ${frozen ? html`<p>signing is frozen — closed for now</p>` : null}
+        <form @submit=${wish}>
+          <input
+            placeholder=${frozen ? 'wishing frozen…' : 'written in the stars...'}
+            ?disabled=${frozen}
+          />
+          <button type="submit" ?disabled=${frozen}>wish</button>
+        </form>
+        <ul>
+          ${repeat(
+            [...data.entries].reverse(),
+            (entry) => html`
+              <li>
+                <b>${entry.name}</b>: ${entry.message}
+                ${admin
+                  ? html`<button type="button" @click=${() => remove(entry.at)}>
+                      delete
+                    </button>`
+                  : null}
+              </li>
+            `,
+          )}
+        </ul>
+      `;
+    },
+  });
 
-            <p>
+// playhtml.register("guestbook", {
 
-                ${data.entries.length}
-                wishes in the sky ✨
+//     defaultData: {
 
-            </p>
+//         entries: []
 
-            <form @submit=${sign}>
+//     },
 
-                <input
-                    placeholder="it's written in the stars..."
-                >
+//     view: ({ data, setData }) => {
 
-                <button>
+//         function sign(event) {
 
-                    Make a Wish
+//             event.preventDefault();
 
-                </button>
+//             const input =
+//                 event.target.querySelector("input");
 
-            </form>
+//             const message =
+//                 input.value.trim();
 
-            <button
-                @click=${clear}
-                ?disabled=${!data.entries.length}
-            >
+//             if (!message) return;
 
-                Clear Wishes
+//             setData(draft => {
 
-            </button>
+//                 draft.entries.push({
 
-            <ul>
+//                     name:
+//                         window.cursors?.name ??
+//                         "someone",
 
-                ${repeat(
+//                     message,
 
-                    [...data.entries].reverse(),
+//                     at: Date.now()
 
-                    wish => html`
+//                 });
 
-                        <li>
+//             });
 
-                            <b>
+//             input.value = "";
 
-                                ${wish.name}
+//         }
 
-                            </b>
+//         function clear() {
 
-                            ${wish.message}
+//             setData(draft => {
 
-                        </li>
+//                 draft.entries = [];
 
-                    `
+//             });
 
-                )}
+//         }
 
-            </ul>
+//         return html`
 
-        `;
+//             <p>
 
-    }
+//                 ${data.entries.length}
+//                 wishes in the sky ✨
 
-});
+//             </p>
+
+//             <form @submit=${sign}>
+
+//                 <input
+//                     placeholder="it's written in the stars..."
+//                 >
+
+//                 <button>
+
+//                     Make a Wish
+
+//                 </button>
+
+//             </form>
+
+//             <button
+//                 @click=${clear}
+//                 ?disabled=${!data.entries.length}
+//             >
+
+//                 Clear Wishes
+
+//             </button>
+
+//             <ul>
+
+//                 ${repeat(
+
+//                     [...data.entries].reverse(),
+
+//                     wish => html`
+
+//                         <li>
+
+//                             <b>
+
+//                                 ${wish.name}
+
+//                             </b>
+
+//                             ${wish.message}
+
+//                         </li>
+
+//                     `
+
+//                 )}
+
+//             </ul>
+
+//         `;
+
+//     }
+
+// });
 
 
 window.playhtml = playhtml;
